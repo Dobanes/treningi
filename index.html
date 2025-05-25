@@ -6,13 +6,15 @@
     <title>Moje Treningi - Aplikacja</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; overflow-x: auto; display: block; }
-        th, td { border: 1px solid #ccc; padding: 6px; font-size: 12px; }
-        th { background-color: #f0f0f0; }
-        textarea, input[type="text"], input[type="number"] { width: 100%; box-sizing: border-box; }
+        .exercise-block { border: 1px solid #ccc; border-radius: 8px; padding: 8px; margin-bottom: 10px; position: relative; background-color: #f9f9f9; }
+        .exercise-block button.remove { position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; cursor: pointer; }
+        label { display: block; margin-top: 4px; font-size: 12px; }
+        input, select, textarea { width: 100%; box-sizing: border-box; margin-bottom: 6px; font-size: 12px; }
         button { padding: 8px; margin: 5px 2px; font-size: 12px; }
-        .hidden { display: none; }
-        .training-summary { cursor: pointer; background-color: #f9f9f9; padding: 10px; margin-bottom: 5px; border: 1px solid #ccc; font-size: 14px; }
+        @media (min-width: 600px) {
+            .exercise-row { display: flex; gap: 5px; }
+            .exercise-row > div { flex: 1; }
+        }
     </style>
 </head>
 <body>
@@ -30,42 +32,32 @@
     <div id="addSection">
         <h2 style="font-size:16px;">Dodaj Trening</h2>
         <form id="trainingForm">
-            <label style="font-size:14px;">Nazwa treningu: <input type="text" id="title" placeholder="Np. Góra/Dół" required></label><br><br>
-            <label style="font-size:14px;">Data treningu: <input type="date" id="date" required></label><br><br>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ozn.</th>
-                        <th>Ćwiczenie</th>
-                        <th>Serie</th>
-                        <th>Powt.</th>
-                        <th>Przerwa</th>
-                        <th>RIR</th>
-                        <th>Ciężar</th>
-                        <th>Uwagi</th>
-                        <th>Akcja</th>
-                    </tr>
-                </thead>
-                <tbody id="exerciseTable">
-                    <tr>
-                        <td><input type="text" name="label" placeholder="A1"></td>
-                        <td><input type="text" name="exercise" required></td>
-                        <td><input type="number" name="sets" min="1" required></td>
-                        <td><input type="text" name="reps" required></td>
-                        <td><input type="text" name="rest"></td>
-                        <td><input type="text" name="rir"></td>
-                        <td><input type="text" name="weight"></td>
-                        <td><textarea name="notes"></textarea></td>
-                        <td><button type="button" onclick="removeRow(this)">❌</button></td>
-                    </tr>
-                </tbody>
-            </table>
+            <label>Nazwa treningu:
+                <input type="text" id="title" placeholder="Np. Góra/Dół" required>
+            </label>
+            <label>Data treningu:
+                <input type="date" id="date" required>
+            </label>
+            <div id="exerciseContainer"></div>
             <div style="text-align:center;">
-                <button type="button" onclick="addRow()">➕ Dodaj ćwiczenie</button>
+                <button type="button" onclick="addExercise()">➕ Dodaj ćwiczenie</button>
                 <button type="submit">💾 Zapisz trening</button>
             </div>
         </form>
     </div>
+
+    <datalist id="exerciseList">
+        <option value="Przysiad">
+        <option value="Martwy ciąg">
+        <option value="Wyciskanie na ławce">
+        <option value="Podciąganie">
+        <option value="Wiosłowanie sztangą">
+        <option value="Prostowniki grzbietu">
+        <option value="Biceps curl">
+        <option value="Triceps pushdown">
+        <option value="Wyciskanie żołnierskie">
+        <option value="Hip thrust">
+    </datalist>
 
     <script>
         function showSection(section) {
@@ -79,24 +71,26 @@
             }
         }
 
-        function addRow() {
-            const table = document.getElementById('exerciseTable');
-            const row = document.createElement('tr');
-            row.innerHTML = `<td><input type="text" name="label" placeholder="A1"></td>
-                             <td><input type="text" name="exercise" required></td>
-                             <td><input type="number" name="sets" min="1" required></td>
-                             <td><input type="text" name="reps" required></td>
-                             <td><input type="text" name="rest"></td>
-                             <td><input type="text" name="rir"></td>
-                             <td><input type="text" name="weight"></td>
-                             <td><textarea name="notes"></textarea></td>
-                             <td><button type="button" onclick="removeRow(this)">❌</button></td>`;
-            table.appendChild(row);
-        }
-
-        function removeRow(button) {
-            const row = button.parentElement.parentElement;
-            row.parentElement.removeChild(row);
+        function addExercise() {
+            const container = document.getElementById('exerciseContainer');
+            const div = document.createElement('div');
+            div.className = 'exercise-block';
+            div.innerHTML = `
+                <button type="button" class="remove" onclick="this.parentElement.remove()">×</button>
+                <label>Oznaczenie: <input type="text" name="label" placeholder="A1"></label>
+                <label>Ćwiczenie: <input list="exerciseList" name="exercise" placeholder="Wpisz lub wybierz"></label>
+                <div class="exercise-row">
+                    <div><label>Serie: <select name="sets"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label></div>
+                    <div><label>Powt.: <input type="text" name="reps" placeholder="Np. 10"></label></div>
+                    <div><label>Przerwa: <input type="text" name="rest" placeholder="Np. 60s"></label></div>
+                </div>
+                <div class="exercise-row">
+                    <div><label>RIR: <select name="rir">${[...Array(11).keys()].map(i => `<option>${i}</option>`).join('')}</select></label></div>
+                    <div><label>Ciężar (kg): <input type="number" name="weight" min="0" max="200" step="0.5"></label></div>
+                    <div><label>Uwagi: <textarea name="notes"></textarea></label></div>
+                </div>
+            `;
+            container.appendChild(div);
         }
 
         function deleteTraining(index) {
@@ -111,15 +105,15 @@
             const title = document.getElementById('title').value;
             const date = document.getElementById('date').value;
             const exercises = [];
-            document.querySelectorAll('#exerciseTable tr').forEach(row => {
-                const label = row.querySelector('[name="label"]').value;
-                const exercise = row.querySelector('[name="exercise"]').value;
-                const sets = row.querySelector('[name="sets"]').value;
-                const reps = row.querySelector('[name="reps"]').value;
-                const rest = row.querySelector('[name="rest"]').value;
-                const rir = row.querySelector('[name="rir"]').value;
-                const weight = row.querySelector('[name="weight"]').value;
-                const notes = row.querySelector('[name="notes"]').value;
+            document.querySelectorAll('#exerciseContainer .exercise-block').forEach(block => {
+                const label = block.querySelector('[name="label"]').value;
+                const exercise = block.querySelector('[name="exercise"]').value;
+                const sets = block.querySelector('[name="sets"]').value;
+                const reps = block.querySelector('[name="reps"]').value;
+                const rest = block.querySelector('[name="rest"]').value;
+                const rir = block.querySelector('[name="rir"]').value;
+                const weight = block.querySelector('[name="weight"]').value;
+                const notes = block.querySelector('[name="notes"]').value;
                 exercises.push({ label, exercise, sets, reps, rest, rir, weight, notes });
             });
 
@@ -128,17 +122,7 @@
             localStorage.setItem('trainings', JSON.stringify(trainings));
 
             document.getElementById('trainingForm').reset();
-            document.getElementById('exerciseTable').innerHTML = `<tr>
-                <td><input type="text" name="label" placeholder="A1"></td>
-                <td><input type="text" name="exercise" required></td>
-                <td><input type="number" name="sets" min="1" required></td>
-                <td><input type="text" name="reps" required></td>
-                <td><input type="text" name="rest"></td>
-                <td><input type="text" name="rir"></td>
-                <td><input type="text" name="weight"></td>
-                <td><textarea name="notes"></textarea></td>
-                <td><button type="button" onclick="removeRow(this)">❌</button></td>
-            </tr>`;
+            document.getElementById('exerciseContainer').innerHTML = '';
             showSection('list');
         }
 
