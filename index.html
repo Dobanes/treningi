@@ -7,14 +7,15 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 10px; }
         .exercise-block { border: 1px solid #ccc; border-radius: 8px; padding: 8px; margin-bottom: 10px; position: relative; background-color: #f9f9f9; }
-        .exercise-block button.remove { position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; cursor: pointer; }
+        .exercise-block button.remove { position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; }
         label { display: block; margin-top: 4px; font-size: 12px; }
-        input, select, textarea { width: 100%; box-sizing: border-box; margin-bottom: 6px; font-size: 12px; }
+        input, select, textarea { width: 100%; box-sizing: border-box; margin-bottom: 4px; font-size: 12px; }
+        .exercise-row { display: flex; flex-wrap: wrap; gap: 4px; }
+        .exercise-row > div { flex: 1 1 45%; min-width: 100px; }
         button { padding: 8px; margin: 5px 2px; font-size: 12px; }
-        @media (min-width: 600px) {
-            .exercise-row { display: flex; gap: 5px; }
-            .exercise-row > div { flex: 1; }
-        }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; overflow-x: auto; display: block; }
+        th, td { border: 1px solid #ccc; padding: 4px; font-size: 12px; word-break: break-word; }
+        th { background-color: #f0f0f0; }
     </style>
 </head>
 <body>
@@ -80,15 +81,15 @@
                 <label>Oznaczenie: <input type="text" name="label" placeholder="A1"></label>
                 <label>Ćwiczenie: <input list="exerciseList" name="exercise" placeholder="Wpisz lub wybierz"></label>
                 <div class="exercise-row">
-                    <div><label>Serie: <select name="sets"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label></div>
+                    <div><label>Serie: <select name="sets">${[2,3,4,5,6].map(v => `<option>${v}</option>`).join('')}</select></label></div>
                     <div><label>Powt.: <input type="text" name="reps" placeholder="Np. 10"></label></div>
-                    <div><label>Przerwa: <input type="text" name="rest" placeholder="Np. 60s"></label></div>
                 </div>
                 <div class="exercise-row">
-                    <div><label>RIR: <select name="rir">${[...Array(11).keys()].map(i => `<option>${i}</option>`).join('')}</select></label></div>
+                    <div><label>Przerwa: <input type="text" name="rest" placeholder="Np. 60s"></label></div>
+                    <div><label>RIR: <select name="rir">${[...Array(11).keys()].map(v => `<option>${v}</option>`).join('')}</select></label></div>
                     <div><label>Ciężar (kg): <input type="number" name="weight" min="0" max="200" step="0.5"></label></div>
-                    <div><label>Uwagi: <textarea name="notes"></textarea></label></div>
                 </div>
+                <label>Uwagi: <textarea name="notes"></textarea></label>
             `;
             container.appendChild(div);
         }
@@ -145,11 +146,11 @@
                 detailsDiv.className = 'hidden';
                 detailsDiv.id = `details-${index}`;
 
-                let detailTable = '<table><thead><tr><th>Ozn.</th><th>Ćwiczenie</th><th>Serie</th><th>Powt.</th><th>Przerwa</th><th>RIR</th><th>Ciężar</th><th>Uwagi</th></tr></thead><tbody>';
+                let detailTable = '<div style="overflow-x:auto;"><table><thead><tr><th>Ozn.</th><th>Ćwiczenie</th><th>Serie</th><th>Powt.</th><th>Przerwa</th><th>RIR</th><th>Ciężar</th><th>Uwagi</th></tr></thead><tbody>';
                 t.exercises.forEach(e => {
                     detailTable += `<tr><td>${e.label}</td><td>${e.exercise}</td><td>${e.sets}</td><td>${e.reps}</td><td>${e.rest}</td><td>${e.rir}</td><td>${e.weight}</td><td>${e.notes || '-'}</td></tr>`;
                 });
-                detailTable += '</tbody></table>';
+                detailTable += '</tbody></table></div>';
                 detailTable += `<div style="text-align:center;"><button onclick="deleteTraining(${trainings.length - 1 - index})">🗑 Usuń ten trening</button></div>`;
 
                 detailsDiv.innerHTML = detailTable;
